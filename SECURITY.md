@@ -24,4 +24,3 @@ Runtime только стандартная библиотека Python; инс�
 
 Suite покрывает invalid JSON, типы/дубли/ограничения/ссылки, false pass, partial/missing, escaping, отсутствие сетевых/исполняющих primitives, запрет перезаписи, POSIX symlink/FIFO и release gates. Public-file pattern scan дополняет ручную проверку, не доказывает отсутствие всех секретов. [Фактические результаты](VERIFICATION.md).
 
-**НЕ ВЫПОЛНЕНО:** live AD/AD CS/ACL/RSAT, реальные effective protocol/GPO tests, минимальные права будущего сборщика, безопасность его запросов, матрица Windows Server, forest restore drill, независимый security audit и независимое восстановление cloud snapshot. Синтетические данные и обычный Windows CI не закрывают эти условия. [Отдельная лаборатория](LOCAL-PC.md).

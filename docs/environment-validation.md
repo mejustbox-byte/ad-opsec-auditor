@@ -1,17 +1,10 @@
-# Проверка облачной среды
+# Product Validation
 
-Дата: 2026-10-09. Checkout `/workspace/ad-opsec-auditor`, публичный репозиторий mejustbox-byte/ad-opsec-auditor. Исходный HEAD `130bde69f31fd82a498ee8fe49a7c17edb1e45b2` совпал с main; в начале были README и локальные документы подготовки. Пользователь разрешил полный цикл реализации и публикации.
+Record the product version, supported system profile, synthetic or authorized
+input source, expected and observed results, skipped checks, and review date.
+Do not publish secrets, real infrastructure exports, hostnames, account names,
+or customer data.
 
-## Подтверждённые возможности
-
-Python 3.12.14, без зависимостей во время работы. Исходный выпуск 0.1.0a1: 36 локальных тестов и 1317 вариантов сверки схемы прошли; 12 запусков wheel/zipapp вне checkout, пересборка исходного архива и повторяемость хешей прошли. Дополнительно реализованы шесть тестов условий безопасной публикации. Текущее фактическое число/статус suite проверяется каждым запуском, не выводится из исторического числа.
-
-Git read/push и GitHub API подтверждены штатной платформенной аутентификацией. Локальный uploads.github.com вернул 401, поэтому assets публикует отдельный вручную запускаемый Actions с GITHUB_TOKEN. Новые credentials не создавались и не извлекались. Теги не перемещаются, старые выпуски сохраняются. Публичные файлы проверены; реальные выгрузки/секреты не использовались.
-
-Настоящие AD/AD CS/RSAT/ACL, действующие политики протоколов и учения восстановления: **not_run**. Сборщик отсутствует. Обычный Windows CI — проверка Python, не AD.
-
-## Настройка без сохранённого venv
-
-Из checkout выполнить `bash tools/install_environment.sh`. [Скрипт](../tools/install_environment.sh) создаёт `/workspace/.ad-opsec-auditor-dev` системным Python 3.12, устанавливает инструменты с проверкой хешей, запускает тесты/схему/проверку файлов, собирает артефакты, проверяет установку и повторяемость, устанавливает актуальный wheel без внешних зависимостей и проверяет CLI. Прошлый venv не нужен; нет сервисов или требований secrets. Повторный запуск не меняет исходники; только свой временный отчёт в /tmp обновляется.
-
-install_script и start_skill среды должны содержать актуальные русские инструкции продукта. Сохранение draft не выполняет команды и не публикует снимок. Пользователь проверяет/сохраняет настройки среды и нажимает Publish / «Опубликовать среду». Публикация среды, GitHub release и реальная лабораторная проверка — отдельные подтверждаемые действия. [Разработка](development.md), [инструкция пользователя](user-guide.md).
+CI fixtures do not prove behavior on a live Active Directory domain. Validate
+Windows-specific checks on a separate authorized laboratory and report only
+observed results.

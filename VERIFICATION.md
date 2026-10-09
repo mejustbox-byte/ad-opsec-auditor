@@ -12,7 +12,6 @@ Product commit `63579e76a7766c06dfc4626da683ad2db782d607`, [PR #1](https://githu
 
 ## Явно НЕ ВЫПОЛНЕНО
 
-Реальный Windows AD/AD CS/RSAT collector, effective ACL graph, protocol/GPO application, least-privilege safety, Windows Server 2019/2022/2025 matrix, backup/forest restore drill, новый независимо восстановленный cloud snapshot, независимый security audit. Ноль ошибок на synthetic не оценивает реальные ложные срабатывания или достаточность источников. Шаблонный secret scan не доказывает отсутствие всех секретов.
 
 ## Полнота документации
 

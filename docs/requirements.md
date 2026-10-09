@@ -1,6 +1,9 @@
-# Требования GITHUB-OPSEC: Microsoft AD
+# Product Requirements and MVP
 
-Статус: требования продукта и MVP, 2026-10-09. Пользователь разрешил реализацию, commit/push, PR, merge и предварительный выпуск. Владелец AD утверждает область и доступ; проверяющий безопасности — правила; оператор выполняет сбор; владелец восстановления подтверждает процедуры.
+This document defines scope and acceptance criteria for read-only assessment of
+Active Directory Tier 0 assets, AD CS, delegated access, service accounts,
+authentication protocols, logging, and forest recovery evidence.
+
 
 ## Цель и границы
 
