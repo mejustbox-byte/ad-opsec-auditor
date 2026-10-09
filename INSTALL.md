@@ -28,9 +28,9 @@ python3 -m tarfile -e ad_opsec_auditor-0.1.0a2.tar.gz .
 py -3.12 -m venv .venv
 .venv\Scripts\python.exe -m pip install --no-index --no-deps ad_opsec_auditor-0.1.0a2-py3-none-any.whl
 py -3.12 -m tarfile -e ad_opsec_auditor-0.1.0a2.tar.gz .
-.venv\Scriptsd-opsec-auditor.exe --version
-.venv\Scriptsd-opsec-auditor.exe validate ad_opsec_auditor-0.1.0a2\examples\safe.synthetic.json
-.venv\Scriptsd-opsec-auditor.exe audit ad_opsec_auditor-0.1.0a2\examples\safe.synthetic.json --format markdown
+.venv\Scripts\ad-opsec-auditor.exe --version
+.venv\Scripts\ad-opsec-auditor.exe validate ad_opsec_auditor-0.1.0a2\examples\safe.synthetic.json
+.venv\Scripts\ad-opsec-auditor.exe audit ad_opsec_auditor-0.1.0a2\examples\safe.synthetic.json --format markdown
 ```
 
 Тексты UTF-8; на Windows частный родительский каталог должен иметь утверждённый ACL. POSIX режим 0600 не является гарантом ACL Windows. Hosted Windows CI проверяет установку/CLI, не настоящий AD-стенд.
