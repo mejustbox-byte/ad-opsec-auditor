@@ -12,14 +12,14 @@ IDS = {'T0-01', 'CS-01', 'ACL-01', 'SVC-01', 'NTLM-01', 'LDAP-01', 'SMB-01', 'LO
 
 class DocumentationTests(unittest.TestCase):
     def setUp(self):
-        self.data = json.loads((ROOT / 'tests/fixtures/readiness.synthetic.json').read_text())
+        self.data = json.loads((ROOT / 'tests/fixtures/readiness.synthetic.json').read_text(encoding='utf-8'))
 
     def test_required_documents_and_traceability(self):
         for path in ['requirements.md', 'threat-model.md', 'architecture.md', 'check-matrix.md', 'lab.md', 'development.md', 'adr/0001-stack.md']:
             self.assertTrue((ROOT / 'docs' / path).is_file(), path)
-        requirements = (ROOT / 'docs/requirements.md').read_text()
-        threats = (ROOT / 'docs/threat-model.md').read_text()
-        matrix = (ROOT / 'docs/check-matrix.md').read_text()
+        requirements = (ROOT / 'docs/requirements.md').read_text(encoding='utf-8')
+        threats = (ROOT / 'docs/threat-model.md').read_text(encoding='utf-8')
+        matrix = (ROOT / 'docs/check-matrix.md').read_text(encoding='utf-8')
         rows = re.findall(r'^\| ([A-Z0-9]+-\d{2}) \| (FR-\d{2}) \| (TM-\d{2}) \|.*$', matrix, re.M)
         self.assertEqual({row[0] for row in rows}, IDS)
         self.assertEqual(len(rows), len(IDS))
@@ -33,7 +33,7 @@ class DocumentationTests(unittest.TestCase):
         documents = [ROOT / 'README.md', *sorted((ROOT / 'docs').rglob('*.md'))]
         count = 0
         for doc in documents:
-            for target in re.findall(r'\[[^\]]*\]\(([^)]+)\)', doc.read_text()):
+            for target in re.findall(r'\[[^\]]*\]\(([^)]+)\)', doc.read_text(encoding='utf-8')):
                 if target.startswith(('https://', 'http://', '#')):
                     continue
                 count += 1
@@ -69,7 +69,7 @@ class DocumentationTests(unittest.TestCase):
                 validate_fixture(data, IDS)
 
     def test_fixture_has_no_obvious_secret_material(self):
-        raw = (ROOT / 'tests/fixtures/readiness.synthetic.json').read_text()
+        raw = (ROOT / 'tests/fixtures/readiness.synthetic.json').read_text(encoding='utf-8')
         self.assertNotRegex(raw, r'-----BEGIN [A-Z ]*PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{20,}|"(?:password|token|secret|private_key)"\s*:')
 
 

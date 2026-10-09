@@ -35,7 +35,7 @@ class CLITests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'bad.json'
             for raw in ['{"password":"DO_NOT_ECHO_SECRET"}', '{"x":', '{"x":NaN}']:
-                path.write_text(raw)
+                path.write_text(raw, encoding='utf-8')
                 result = self.run_cli('audit', path)
                 self.assertEqual(result.returncode, 2)
                 self.assertEqual(result.stdout, '')
@@ -75,7 +75,7 @@ class CLITests(unittest.TestCase):
         import ast
         forbidden = {'socket', 'requests', 'urllib', 'http', 'subprocess', 'ctypes'}
         for path in (ROOT / 'ad_opsec_auditor').glob('*.py'):
-            tree = ast.parse(path.read_text())
+            tree = ast.parse(path.read_text(encoding='utf-8'))
             for node in ast.walk(tree):
                 if isinstance(node, ast.Import):
                     self.assertFalse({a.name.split('.')[0] for a in node.names} & forbidden, path)

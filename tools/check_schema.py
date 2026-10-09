@@ -16,7 +16,7 @@ Draft202012Validator.check_schema(schema)
 reference = Draft202012Validator(schema, format_checker=FormatChecker())
 cases = []
 for name in ['safe', 'risky', 'incomplete']:
-    data = json.loads((ROOT / f'examples/{name}.synthetic.json').read_text())
+    data = json.loads((ROOT / f'examples/{name}.synthetic.json').read_text(encoding='utf-8'))
     cases.append(data)
 base = cases[0]
 
@@ -52,6 +52,6 @@ for index, data in enumerate(cases):
     if reference_valid != actual_valid:
         raise AssertionError(f'Schema agreement failed for generated case {index}')
 for file in [ROOT / 'schemas/snapshot-v1.schema.json', ROOT / 'ad_opsec_auditor/snapshot-v1.schema.json']:
-    if json.loads(file.read_text()) != schema:
+    if json.loads(file.read_text(encoding='utf-8')) != schema:
         raise AssertionError('Published schema is stale')
 print(f'Reference schema agreement: {len(cases)} cases passed')

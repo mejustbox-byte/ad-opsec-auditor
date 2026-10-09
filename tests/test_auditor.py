@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def fixture(name='safe'):
-    return json.loads((ROOT / f'examples/{name}.synthetic.json').read_text())
+    return json.loads((ROOT / f'examples/{name}.synthetic.json').read_text(encoding='utf-8'))
 
 
 def report(data):
@@ -150,7 +150,7 @@ class ValidationTests(unittest.TestCase):
     def test_schema_artifacts_match_source(self):
         expected = snapshot_schema()
         for path in ['schemas/snapshot-v1.schema.json', 'ad_opsec_auditor/snapshot-v1.schema.json']:
-            self.assertEqual(json.loads((ROOT / path).read_text()), expected)
+            self.assertEqual(json.loads((ROOT / path).read_text(encoding='utf-8')), expected)
 
     def test_required_top_level_and_unknown_keys(self):
         for field in fixture():

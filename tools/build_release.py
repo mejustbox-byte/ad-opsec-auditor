@@ -50,5 +50,5 @@ with zipfile.ZipFile(DIST / names[2], 'w', compression=zipfile.ZIP_DEFLATED) as 
         info.external_attr = 0o644 << 16
         stream.writestr(info, contents)
 lines = [hashlib.sha256((DIST / name).read_bytes()).hexdigest() + '  ' + name for name in names]
-(DIST / 'SHA256SUMS').write_text('\n'.join(lines) + '\n')
+(DIST / 'SHA256SUMS').write_text('\n'.join(lines) + '\n', encoding='utf-8', newline='\n')
 print('Built artifacts and SHA256SUMS:', ', '.join(names))
