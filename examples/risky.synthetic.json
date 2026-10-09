@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "scope": "lab.example.test",
+  "collected_at": "2026-10-09T00:00:00Z",
+  "source": "hand-authored synthetic fixture v1",
+  "evidence": [
+    {
+      "id": "synthetic-T0-01",
+      "source": "synthetic-model",
+      "collected_at": "2026-10-09T00:00:00Z",
+      "description": "Fictional baseline assertions; not collected from AD."
+    },
+    {
+      "id": "synthetic-CS-01",
+      "source": "synthetic-model",
+      "collected_at": "2026-10-09T00:00:00Z",
+      "description": "Fictional baseline assertions; not collected from AD."
+    },
+    {
+      "id": "synthetic-ACL-01",
+      "source": "synthetic-model",
+      "collected_at": "2026-10-09T00:00:00Z",
+      "description": "Fictional baseline assertions; not collected from AD."
+    },
+    {
+      "id": "synthetic-SVC-01",
+      "source": "synthetic-model",
+      "collected_at": "2026-10-09T00:00:00Z",
+      "description": "Fictional baseline assertions; not collected from AD."
+    },
+    {
+      "id": "synthetic-NTLM-01",
+      "source": "synthetic-model",
+      "collected_at": "2026-10-09T00:00:00Z",
+      "description": "Fictional baseline assertions; not collected from AD."
+    },
+    {
+      "id": "synthetic-LDAP-01",
+      "source": "synthetic-model",
+      "collected_at": "2026-10-09T00:00:00Z",
+      "description": "Fictional baseline assertions; not collected from AD."
+    },
+    {
+      "id": "synthetic-SMB-01",
+      "source": "synthetic-model",
+      "collected_at": "2026-10-09T00:00:00Z",
+      "description": "Fictional baseline assertions; not collected from AD."
+    },
+    {
+      "id": "synthetic-LOG-01",
+      "source": "synthetic-model",
+      "collected_at": "2026-10-09T00:00:00Z",
+      "description": "Fictional baseline assertions; not collected from AD."
+    },
+    {
+      "id": "synthetic-REC-01",
+      "source": "synthetic-model",
+      "collected_at": "2026-10-09T00:00:00Z",
+      "description": "Fictional baseline assertions; not collected from AD."
+    }
+  ],
+  "observations": {
+    "T0-01": {
+      "state": "collected",
+      "coverage": "complete",
+      "reason": "",
+      "evidence_refs": [
+        "synthetic-T0-01"
+      ],
+      "facts": {
+        "unexpected_admin_paths": 1,
+        "unapproved_privileged_members": 0
+      }
+    },
+    "CS-01": {
+      "state": "collected",
+      "coverage": "complete",
+      "reason": "",
+      "evidence_refs": [
+        "synthetic-CS-01"
+      ],
+      "facts": {
+        "unprivileged_ca_control": false,
+        "templates": [
+          {
+            "name": "LabTemplate",
+            "published": true,
+            "authentication": true,
+            "enrollee_supplies_subject": true,
+            "unprivileged_enrollment": true,
+            "approval_required": false,
+            "authorized_signatures": 0
+          }
+        ]
+      }
+    },
+    "ACL-01": {
+      "state": "collected",
+      "coverage": "complete",
+      "reason": "",
+      "evidence_refs": [
+        "synthetic-ACL-01"
+      ],
+      "facts": {
+        "unauthorized_control_edges": 1,
+        "unresolved_aces": 0
+      }
+    },
+    "SVC-01": {
+      "state": "collected",
+      "coverage": "complete",
+      "reason": "",
+      "evidence_refs": [
+        "synthetic-SVC-01"
+      ],
+      "facts": {
+        "unmanaged_privileged_accounts": 0,
+        "stale_accounts": 1,
+        "unrestricted_gmsa_readers": 0
+      }
+    },
+    "NTLM-01": {
+      "state": "collected",
+      "coverage": "complete",
+      "reason": "",
+      "evidence_refs": [
+        "synthetic-NTLM-01"
+      ],
+      "facts": {
+        "effective_restriction": true,
+        "observed_ntlm": true
+      }
+    },
+    "LDAP-01": {
+      "state": "collected",
+      "coverage": "complete",
+      "reason": "",
+      "evidence_refs": [
+        "synthetic-LDAP-01"
+      ],
+      "facts": {
+        "effective_signing_required": true,
+        "effective_channel_binding_required": false
+      }
+    },
+    "SMB-01": {
+      "state": "collected",
+      "coverage": "complete",
+      "reason": "",
+      "evidence_refs": [
+        "synthetic-SMB-01"
+      ],
+      "facts": {
+        "effective_signing_required": true,
+        "smb1_enabled": true
+      }
+    },
+    "LOG-01": {
+      "state": "collected",
+      "coverage": "complete",
+      "reason": "",
+      "evidence_refs": [
+        "synthetic-LOG-01"
+      ],
+      "facts": {
+        "effective_advanced_audit": true,
+        "forwarding_healthy": true,
+        "retention_days": 29
+      }
+    },
+    "REC-01": {
+      "state": "collected",
+      "coverage": "complete",
+      "reason": "",
+      "evidence_refs": [
+        "synthetic-REC-01"
+      ],
+      "facts": {
+        "runbook_reviewed": true,
+        "backup_verified": true,
+        "isolated_drill_succeeded": true,
+        "drill_age_days": 181
+      }
+    }
+  }
+}

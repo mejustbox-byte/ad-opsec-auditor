@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ad-opsec-auditor"
+version = "0.1.0a1"
+description = "Read-only offline Active Directory posture evidence auditor"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+authors = [{name = "GITHUB-OPSEC contributors"}]
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3.12", "Topic :: Security"]
+dependencies = []
+
+[project.scripts]
+ad-opsec-auditor = "ad_opsec_auditor.cli:main"
+
+[project.urls]
+Repository = "https://github.com/mejustbox-byte/ad-opsec-auditor"
+
+[tool.setuptools]
+packages = ["ad_opsec_auditor"]
+
+[tool.setuptools.package-data]
+ad_opsec_auditor = ["snapshot-v1.schema.json"]
