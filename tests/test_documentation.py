@@ -33,6 +33,8 @@ class DocumentationTests(unittest.TestCase):
         documents = [*sorted(ROOT.glob('*.md')), *sorted((ROOT / 'docs').rglob('*.md')), *sorted((ROOT / '.github').rglob('*.md'))]
         count = 0
         for doc in documents:
+            contents = doc.read_text(encoding='utf-8')
+            self.assertFalse(any(ord(c) < 32 and c not in '\n\r\t' for c in contents), str(doc))
             for target in re.findall(r'\[[^\]]*\]\(([^)]+)\)', doc.read_text(encoding='utf-8')):
                 if target.startswith(('https://', 'http://', '#')):
                     continue
