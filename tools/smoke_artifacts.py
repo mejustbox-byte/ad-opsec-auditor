@@ -6,6 +6,9 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, 'reconfigure'):
+        _stream.reconfigure(encoding='utf-8')
 import tarfile
 import tempfile
 import venv

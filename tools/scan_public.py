@@ -1,4 +1,8 @@
 """Conservative public-file guard; supplements, never replaces, manual review."""
+import sys
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, 'reconfigure'):
+        _stream.reconfigure(encoding='utf-8')
 import json
 from pathlib import Path
 import re

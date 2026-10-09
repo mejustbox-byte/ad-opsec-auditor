@@ -2,6 +2,10 @@
 
 No release creation, tag mutation, credentials configuration or asset overwrite.
 """
+import sys
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, 'reconfigure'):
+        _stream.reconfigure(encoding='utf-8')
 import argparse
 import hashlib
 import json

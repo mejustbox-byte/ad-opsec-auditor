@@ -3,6 +3,9 @@ from copy import deepcopy
 import json
 from pathlib import Path
 import sys
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, 'reconfigure'):
+        _stream.reconfigure(encoding='utf-8')
 
 from jsonschema import Draft202012Validator, FormatChecker
 

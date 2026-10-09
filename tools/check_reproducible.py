@@ -2,6 +2,9 @@
 from pathlib import Path
 import subprocess
 import sys
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, 'reconfigure'):
+        _stream.reconfigure(encoding='utf-8')
 ROOT = Path(__file__).resolve().parents[1]
 before = (ROOT / 'dist/SHA256SUMS').read_bytes()
 subprocess.run([sys.executable, str(ROOT / 'tools/build_release.py')], check=True, stdout=subprocess.DEVNULL)
