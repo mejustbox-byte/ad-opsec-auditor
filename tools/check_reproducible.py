@@ -7,4 +7,4 @@ before = (ROOT / 'dist/SHA256SUMS').read_bytes()
 subprocess.run([sys.executable, str(ROOT / 'tools/build_release.py')], check=True, stdout=subprocess.DEVNULL)
 if (ROOT / 'dist/SHA256SUMS').read_bytes() != before:
     raise SystemExit('Repeated release build differs')
-print('Repeated wheel/sdist/zipapp SHA256 checksums match')
+print('SHA256 повторных сборок wheel/исходного архива/zipapp совпали')

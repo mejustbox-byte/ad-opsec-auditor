@@ -1,11 +1,15 @@
-# Публикация существующего prerelease через Actions
+# Публикация предварительных выпусков через Actions
 
-Первый релиз: существующий draft ID `407852541`, tag `v0.1.0a1`, immutable product commit `63579e76a7766c06dfc4626da683ad2db782d607`. Тег не передвигается; новый release не создаётся. Local uploads.github.com вернул 401, поэтому публикация использует штатный ephemeral GITHUB_TOKEN только на hosted Actions.
+Используется существующий draft выбранного выпуска. Теги v0.1.0a1 и v0.1.0a2 неизменны; версии пакета соответственно 0.1.0a1 и 0.1.0a2. Новый draft создаётся один раз штатным API для нового выпуска, после чего workflow только дополняет и публикует его. Старый выпуск не удаляется. Локальный uploads.github.com вернул 401; Actions использует собственный штатный временный GITHUB_TOKEN, без новых credentials.
 
-Workflow [release.yml](../.github/workflows/release.yml) запускается вручную с main после отдельного PR и CI. Build job contents:read проверяет tag/HEAD SHA, устанавливает hash-pinned tooling, тестирует именно tagged code, собирает wheel/sdist/zipapp, проверяет установку, повторяемость и SHA256SUMS. Publisher job contents:write скачивает artifact того же run; token передаётся только шагу публикации. Нет новых secrets, paid resources, pull_request_target или токена в файлах/логах.
+[Workflow](../.github/workflows/release.yml) запускается вручную с main после PR и успешного CI. Параметры: tag, expected_commit (полный SHA конкретного тега), release_id существующего draft. Job сборки имеет contents:read и проверяет SHA/версию пакета, устанавливает инструменты с проверкой хешей, тестирует именно tagged source, собирает wheel/исходный архив/zipapp, проверяет установку, повторяемость и SHA256SUMS. Job публикации имеет contents:write; токен передаётся только шагу публикации.
 
-Publisher проверяет repo/event/main context, tag и release ID, exact четыре файла, локальные hashes и существующие asset states/digests. Заливает только отсутствующие assets; не перезаписывает файлы и не меняет tag. Скачивает файлы draft и сравнивает hashes перед публикацией; затем меняет только draft=false/prerelease=true у существующего release, повторно проверяет API states и скачанные hashes. При mismatch публикация останавливается. Повторный запуск уже опубликованного релиза только проверяет файлы, не изменяет их.
+Проверяются репозиторий, событие запуска, main, тег, release ID, точный состав четырёх файлов, локальные hashes и состояния файлов GitHub. Загружаются только отсутствующие assets; существующие не перезаписываются. Файлы скачиваются и сверяются до публикации; затем меняются только draft=false/prerelease=true и снова проверяются состояния и скачанные hashes. Несоответствие останавливает публикацию. Повторный запуск опубликованного релиза только проверяет его.
 
-Запуск: `gh workflow run release.yml --ref main --repo mejustbox-byte/ad-opsec-auditor`, либо Run workflow на main в Actions. Публичный release готов только после successful build/publish jobs, draft=false, prerelease=true, четырёх uploaded assets и проверки скачанных checksum. Пустой draft и tagged branch не являются завершением выпуска.
+```sh
+gh workflow run release.yml --ref main --repo mejustbox-byte/ad-opsec-auditor -f tag=v0.1.0a2 -f expected_commit=FULL_COMMIT_SHA -f release_id=EXISTING_DRAFT_ID
+```
 
-Release automation находится в более новом main commit, чем product tag. Это намеренно: собирается прежний проверенный tag, publisher берётся из прошедшего review workflow commit. В product v0.1.0a1 native Windows AD tests остаются not_run.
+Заменить FULL_COMMIT_SHA и EXISTING_DRAFT_ID проверенными публичными значениями, не секретами. Альтернатива — Run workflow на main в Actions. Выпуск завершён только после successful job сборки/публикации, draft=false, prerelease=true, четырёх uploaded assets и совпадения скачанных контрольных сумм. Пустой draft или ветка артефактов не считается выпуском.
+
+Workflow может находиться в более новом commit main, чем исторический product tag: сборка всё равно использует выбранный проверенный тег, а публикация — проверенный workflow commit. Реальные Windows AD проверки остаются not_run независимо от результата Actions.

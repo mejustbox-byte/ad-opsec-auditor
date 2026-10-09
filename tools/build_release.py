@@ -43,6 +43,7 @@ with archive.open('wb') as raw:
 with zipfile.ZipFile(DIST / names[2], 'w', compression=zipfile.ZIP_DEFLATED) as stream:
     files = [(f'ad_opsec_auditor/{p.name}', p.read_bytes())
              for p in sorted((ROOT / 'ad_opsec_auditor').iterdir()) if p.suffix in {'.py', '.json'}]
+    files.extend((name, (ROOT / name).read_bytes()) for name in ['LICENSE', 'LICENSE.ru.md'])
     files.append(('__main__.py', b'from ad_opsec_auditor.cli import main\nraise SystemExit(main())\n'))
     for name, contents in sorted(files):
         info = zipfile.ZipInfo(name, date_time=(2026, 2, 2, 0, 0, 0))
@@ -51,4 +52,4 @@ with zipfile.ZipFile(DIST / names[2], 'w', compression=zipfile.ZIP_DEFLATED) as 
         stream.writestr(info, contents)
 lines = [hashlib.sha256((DIST / name).read_bytes()).hexdigest() + '  ' + name for name in names]
 (DIST / 'SHA256SUMS').write_text('\n'.join(lines) + '\n', encoding='utf-8', newline='\n')
-print('Built artifacts and SHA256SUMS:', ', '.join(names))
+print('Собраны артефакты и SHA256SUMS:', ', '.join(names))

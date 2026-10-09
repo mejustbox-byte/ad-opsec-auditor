@@ -30,7 +30,7 @@ class DocumentationTests(unittest.TestCase):
             self.assertIn(f'FR-{number:02}', requirements)
 
     def test_local_markdown_links(self):
-        documents = [ROOT / 'README.md', *sorted((ROOT / 'docs').rglob('*.md'))]
+        documents = [*sorted(ROOT.glob('*.md')), *sorted((ROOT / 'docs').rglob('*.md')), *sorted((ROOT / '.github').rglob('*.md'))]
         count = 0
         for doc in documents:
             for target in re.findall(r'\[[^\]]*\]\(([^)]+)\)', doc.read_text(encoding='utf-8')):
@@ -75,3 +75,22 @@ class DocumentationTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class FullDocumentationTests(unittest.TestCase):
+    def test_complete_root_index_and_mit_metadata(self):
+        import tomllib
+        expected = ['ARCHITECTURE.md', 'TECH-STACK.md', 'INSTALL.md', 'CONTRIBUTING.md',
+                    'ROADMAP.md', 'SECURITY.md', 'CHANGELOG.md', 'THREAT-MODEL.md', 'CORE-CONTRACT.md',
+                    'RUNBOOK.md', 'CLOUD-DEVELOPMENT.md', 'LOCAL-PC.md', 'VERIFICATION.md',
+                    'RELEASE.md', 'RELEASE-CHECKLIST.md', 'RELEASE-NOTES.md', 'SUPPLY-CHAIN.md', 'LICENSE.ru.md', 'AGENTS.md']
+        readme = (ROOT / 'README.md').read_text(encoding='utf-8')
+        for name in expected:
+            self.assertTrue((ROOT / name).is_file(), name)
+            self.assertIn('](' + name + ')', readme, name)
+        metadata = tomllib.loads((ROOT / 'pyproject.toml').read_text(encoding='utf-8'))['project']
+        self.assertEqual(metadata['license'], 'MIT')
+        self.assertEqual(set(metadata['license-files']), {'LICENSE', 'LICENSE.ru.md'})
+        license_text = (ROOT / 'LICENSE').read_text(encoding='utf-8')
+        self.assertIn('Permission is hereby granted, free of charge', license_text)
+        self.assertIn('THE SOFTWARE IS PROVIDED "AS IS"', license_text)

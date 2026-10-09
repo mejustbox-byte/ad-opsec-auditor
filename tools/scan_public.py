@@ -30,4 +30,4 @@ for encoded in sorted(set(paths)):
         data = json.loads(raw)
         if data.get('synthetic') is not True or data.get('scope') != 'lab.example.test':
             raise SystemExit(f'Public fixture must be explicitly synthetic: {path.relative_to(ROOT)}')
-print(f'Public-file guard passed for {count} files; manual provenance review still required')
+print(f'Проверка публичных файлов пройдена: {count} файлов; ручная проверка происхождения остаётся обязательной')

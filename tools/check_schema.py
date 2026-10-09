@@ -54,4 +54,4 @@ for index, data in enumerate(cases):
 for file in [ROOT / 'schemas/snapshot-v1.schema.json', ROOT / 'ad_opsec_auditor/snapshot-v1.schema.json']:
     if json.loads(file.read_text(encoding='utf-8')) != schema:
         raise AssertionError('Published schema is stale')
-print(f'Reference schema agreement: {len(cases)} cases passed')
+print(f'Согласованность с эталонной схемой: {len(cases)} вариантов прошли')

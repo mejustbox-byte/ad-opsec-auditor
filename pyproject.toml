@@ -4,11 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ad-opsec-auditor"
-version = "0.1.0a1"
-description = "Read-only offline Active Directory posture evidence auditor"
+version = "0.1.0a2"
+description = "Автономный аудитор свидетельств безопасности Active Directory только для чтения"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "LICENSE.ru.md"]
 requires-python = ">=3.12,<3.13"
-authors = [{name = "GITHUB-OPSEC contributors"}]
+authors = [{name = "Участники GITHUB-OPSEC"}]
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3.12", "Topic :: Security"]
 dependencies = []
 

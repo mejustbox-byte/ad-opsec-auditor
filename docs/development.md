@@ -1,6 +1,6 @@
-# Разработка, CI и данные
+# Разработка, проверки и сборка
 
-Использовать существующий checkout `/workspace/ad-opsec-auditor`; cloud task изолирован, worktree не нужен. Python 3.12. Source запуск и основная suite не требуют внешних пакетов:
+Python 3.12. Использовать существующий checkout `/workspace/ad-opsec-auditor`; облачная задача изолирована, worktree не нужен без явного запроса. Основные тесты и запуск из исходников не требуют внешних пакетов.
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -21,10 +21,8 @@ python3 -m venv .venv
 .venv/bin/python tools/check_reproducible.py
 ```
 
-На Windows использовать `.venv\Scripts\python.exe`. Все package pins/hashes находятся в lock; нет runtime dependencies. Build script пишет только ignored dist/ и build/. Сборка wheel/sdist через pinned build backend с --no-isolation. Одинаковый source и SOURCE_DATE_EPOCH дают повторяемые artifacts; проверка повторной сборки сравнивает hashes. Source archives включают документы/tests/schema/examples, но не private-data/reports.
+На Windows использовать `.venv\Scripts\python.exe`. Инструменты сборки/проверки закреплены по версиям и SHA256; зависимости во время работы отсутствуют. Сборка wheel/исходного архива с --no-isolation, вывод только в ignored dist/build. Нормализованные метаданные обеспечивают повторяемость. Проверяется установка вне checkout, zipapp, пересборка из архива и повторные хеши. В исходный архив входят документация, тесты, схема и примеры, не частные данные.
 
-CI: `.github/workflows/ci.yml`, push/pull_request/workflow_dispatch; hosted Ubuntu/Windows, Python 3.12, read-only token, immutable action SHA, без secret bindings/private runners. Выполняет suite, reference schema check, public-file scan, build, installed wheel/zipapp smoke. Hosted Windows здесь тестирует Python CLI, **не AD**. Релиз выполняется после CI по exact commit, сборки и smoke tests. Не использовать pull_request_target или production exports в CI.
+CI запускает эти проверки на Ubuntu и Windows с read-only token и закреплёнными SHA Actions. Реальные данные, secrets, частные runners и pull_request_target не используются. Windows CI проверяет автономный Python, не AD; POSIX-only тест symlink/FIFO ожидаемо пропускается на Windows. Лабораторные проверки остаются not_run.
 
-Публично допустимы только вручную созданные synthetic fixtures. Реальные exports, keys, credential, event payloads и production topology запрещены; в этой cloud задаче они не используются. Private report хранить вне checkout с ACL/шифрованием и retention. `.gitignore` и pattern scanner — вспомогательные барьеры; ручной diff review остаётся обязательным.
-
-См. [MVP](mvp-plan.md), [user guide](user-guide.md), [лабораторию](lab.md), [релизные ограничения](../CHANGELOG.md). Пользователь разрешил commit/push/PR/merge/release; прежний запрет документационного этапа отменён. Изменение AD и создание платных ресурсов не разрешено.
+Публикация: [Actions workflow](release-workflow.md). Реальные файлы инфраструктуры и секреты запрещены; проверка шаблонов дополняет обязательный ручной анализ. Пользователь разрешил реализацию/PR/merge/release, но не изменение AD и платные ресурсы. Документация и пользовательские тексты на русском, ключи/команды/пути/ID сохраняются. UTF-8 задаётся явно.

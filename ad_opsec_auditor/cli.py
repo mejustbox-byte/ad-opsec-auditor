@@ -20,17 +20,37 @@ def write_output(content, destination):
         stream.write(content)
 
 
+class RussianParser(argparse.ArgumentParser):
+    def __init__(self, *args, **kwargs):
+        kwargs['add_help'] = False
+        super().__init__(*args, **kwargs)
+        self.add_argument('-h', '--help', action='help', help='Показать справку и завершить работу')
+
+    def format_help(self):
+        return super().format_help().replace('usage:', 'использование:').replace('positional arguments:', 'позиционные аргументы:').replace('options:', 'параметры:')
+
+    def format_usage(self):
+        return super().format_usage().replace('usage:', 'использование:')
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        self.exit(2, 'ошибка: неверные аргументы; используйте --help\n')
+
+
 def main(argv=None):
-    parser = argparse.ArgumentParser(description='Offline AD posture evidence auditor. No live AD collection.')
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, 'reconfigure'):
+            stream.reconfigure(encoding='utf-8')
+    parser = RussianParser(description='Автономный аудитор свидетельств безопасности AD. Реальный сбор из AD не выполняется.')
     parser.add_argument('--version', action='version', version=__version__)
-    commands = parser.add_subparsers(dest='command', required=True)
-    commands.add_parser('schema', help='Print input JSON Schema v1')
-    validate = commands.add_parser('validate', help='Validate a local normalized JSON snapshot')
+    commands = parser.add_subparsers(dest='command', required=True, title='команды')
+    commands.add_parser('schema', help='Вывести схему входного JSON v1')
+    validate = commands.add_parser('validate', help='Проверить локальный нормализованный снимок JSON')
     validate.add_argument('input')
-    audit = commands.add_parser('audit', help='Evaluate local evidence with baseline-v1 rules')
+    audit = commands.add_parser('audit', help='Оценить локальные свидетельства по baseline-v1')
     audit.add_argument('input')
     audit.add_argument('--format', choices=('json', 'markdown'), default='json')
-    audit.add_argument('--output', help='Create a new file (never overwrite); default stdout')
+    audit.add_argument('--output', help='Создать новый файл без перезаписи; по умолчанию stdout')
     args = parser.parse_args(argv)
     try:
         if args.command == 'schema':
@@ -38,17 +58,17 @@ def main(argv=None):
             return 0
         snapshot, raw = load_snapshot(args.input)
         if args.command == 'validate':
-            write_output('Snapshot structure and references are valid; no live infrastructure verified.\n', None)
+            write_output('Структура и ссылки снимка корректны; реальная инфраструктура не проверена.\n', None)
             return 0
         report = make_report(snapshot, raw)
         content = json_report(report) if args.format == 'json' else markdown_report(report)
         write_output(content, args.output)
         return audit_exit_code(report)
     except InputError as exc:
-        print('error: ' + str(exc), file=sys.stderr)
+        print('ошибка: ' + str(exc), file=sys.stderr)
         return 2
     except (OSError, UnicodeError):
-        print('error: cannot create or write report; destination must be new and writable', file=sys.stderr)
+        print('ошибка: не удалось записать отчёт; файл назначения должен быть новым и доступным для записи', file=sys.stderr)
         return 2
 
 

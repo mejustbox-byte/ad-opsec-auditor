@@ -1,21 +1,20 @@
-# MVP v0.1.0a1: offline evidence auditor
+# План MVP 0.1.0a2
 
-## Принятое направление
+## Реализованная область
 
-Первый пригодный prerelease анализирует нормализованный JSON snapshot локально, без сети, AD API, secrets и исправления инфраструктуры. Это полезный evidence triage и policy review, не автоматический live scanner. Input facts готовит оператор по лабораторной инструкции; auditor проверяет их структуру и согласованность, но не удостоверяет истинность источника.
+Пригодный автономный предварительный выпуск анализирует локальный нормализованный JSON без сети, учётных данных, AD API и исправления инфраструктуры. Факты подготавливает доверенный оператор; структура и согласованность проверяются, истинность источника не удостоверяется.
 
-## Объём выпуска
+1. Схема v1, строгие типы, запрет неизвестных полей/duplicate keys/non-finite values, ограничения размера/глубины/объектов.
+2. Девять правил по матрице; свидетельства, критичность, уверенность, рекомендации, pass/fail/unknown/not_run.
+3. CLI validate/audit/schema; детерминированные JSON и безопасный Markdown, SHA256 входа и предупреждения о происхождении.
+4. Синтетические безопасные/рискованные/неполные примеры, отрицательные и CLI тесты, проверка установки, CI Linux/Windows.
+5. Инструменты сборки с закреплёнными хешами; wheel, исходный архив, zipapp, SHA256SUMS и проверка скачанных файлов при публикации.
+6. Документация, помощь CLI, описания правил/схем и инструкции среды на русском; ключи и логика сохранены.
 
-1. Версионированная schema, строгие типы, запрет неизвестных полей, duplicate JSON keys, non-finite values, лимиты размера/глубины/числа объектов.
-2. Девять правил по матрице: Tier 0, AD CS, ACL, сервисные учётные записи, NTLM, LDAP, SMB, logging, forest recovery. Каждое выдаёт pass/fail/unknown/not_run, evidence, severity, confidence и remediation.
-3. CLI validate/audit/schema, JSON и escaped Markdown, детерминированные результаты, hash входного файла, явно synthetic/live-unverified labels.
-4. Полные и неполные синтетические примеры, negative fixtures, unit и CLI integration, install/build smoke tests, Linux и Windows hosted CI только на synthetic данных.
-5. Hash-pinned build dependencies, wheel/sdist/portable zipapp и SHA256SUMS, PR и prerelease если платформа позволяет.
+## Отложенные возможности
 
-## Deferred и release gates
+Собственный Windows-сборщик, полный граф эффективных ACL, опрос CA, действующие GPO/политики и проверка протоколов, реальное учение восстановления. Эти проверки **not_run**. Обычные Windows/synthetic тесты не заменяют AD-стенд. Стабильный выпуск требует собственного сборщика и лабораторной приёмки операций чтения.
 
-Native Windows collector, raw ACL effective access graph, CA endpoint interrogation, применение GPO, authentication/channel tests и recovery drills не реализуются в этом MVP. Никакого claim об их успешности. Windows AD laboratory gate = not_run до настоящего evidence, даже если hosted Windows Python tests пройдут. Full stable release требует trusted collector и лабораторного safety review. Отсутствие API permission блокирует PR/merge/release, но не локальную реализацию, build или Git push.
+## Условия выпуска
 
-## Критерии приёмки
-
-Для каждого правила есть safe/risky/missing evidence tests. Missing или partial coverage не дают pass. Неверный ввод получает exit 2 без traceback/эхо данных. Audit выдаёт exit 1 при fail, exit 3 при unknown/not_run без fail, exit 0 только при всех pass. Не перезаписывает файлы или вход. Релиз публикуется только после всех доступных local/remote checks; unavailable checks перечисляются отдельно.
+Каждое правило имеет безопасный/рискованный/неполный сценарий. Missing/partial не дают pass. Некорректный ввод даёт exit 2 без traceback или входных значений. Audit: 1 при fail; 3 при unknown/not_run без fail; 0 только при всех pass. Файлы не перезаписываются. PR сливается после доступного CI; неизменный тег собирается и публикуется с проверенными assets. Теги v0.1.0a1 и v0.1.0a2 не передвигаются; второй выпуск не удаляет первый.

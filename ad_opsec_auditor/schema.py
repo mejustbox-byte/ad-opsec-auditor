@@ -62,5 +62,8 @@ def snapshot_schema():
         'observations': obj(observations),
     }, ('schema_version', 'synthetic', 'scope', 'collected_at', 'source', 'evidence', 'observations'))
     schema['$schema'] = 'https://json-schema.org/draft/2020-12/schema'
-    schema['title'] = 'AD OPSEC normalized snapshot v1'
+    descriptions = {'schema_version': 'Версия контракта входных данных.', 'synthetic': 'Признак искусственного примера; не подтверждает подлинность данных.', 'scope': 'Заявленная область снимка; полнота не проверяется сборщиком.', 'collected_at': 'Время снимка в UTC.', 'source': 'Заявленный источник без проверки подлинности.', 'evidence': 'Ссылочные свидетельства; секреты и исходные выгрузки не допускаются.', 'observations': 'Нормализованные факты по идентификаторам проверок.'}
+    for key, description in descriptions.items():
+        schema['properties'][key]['description'] = description
+    schema['title'] = 'Нормализованный снимок AD OPSEC v1'
     return deepcopy(schema)

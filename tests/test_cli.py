@@ -12,13 +12,13 @@ ROOT = Path(__file__).resolve().parents[1]
 class CLITests(unittest.TestCase):
     def run_cli(self, *args):
         return subprocess.run([sys.executable, '-m', 'ad_opsec_auditor', *map(str, args)], cwd=ROOT,
-                              capture_output=True, text=True, timeout=10)
+                              capture_output=True, text=True, encoding='utf-8', timeout=10)
 
     def test_validate_and_schema(self):
         result = self.run_cli('validate', 'examples/safe.synthetic.json')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('no live infrastructure', result.stdout)
-        self.assertEqual(json.loads(self.run_cli('schema').stdout)['title'], 'AD OPSEC normalized snapshot v1')
+        self.assertIn('реальная инфраструктура не проверена', result.stdout)
+        self.assertEqual(json.loads(self.run_cli('schema').stdout)['title'], 'Нормализованный снимок AD OPSEC v1')
 
     def test_audit_exit_codes_and_formats(self):
         for name, code in [('safe', 0), ('risky', 1), ('incomplete', 3)]:
@@ -28,8 +28,8 @@ class CLITests(unittest.TestCase):
                 self.assertEqual(len(json.loads(result.stdout)['results']), 9)
                 markdown = self.run_cli('audit', f'examples/{name}.synthetic.json', '--format', 'markdown')
                 self.assertEqual(markdown.returncode, code)
-                self.assertIn('# AD OPSEC', markdown.stdout)
-                self.assertIn('No live AD', markdown.stdout)
+                self.assertIn('# Отчёт', markdown.stdout)
+                self.assertIn('Реальные AD', markdown.stdout)
 
     def test_no_traceback_or_input_echo(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -83,3 +83,13 @@ class CLITests(unittest.TestCase):
                     self.assertNotIn(node.module.split('.')[0], forbidden, path)
                 elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
                     self.assertNotIn(node.func.id, {'eval', 'exec', 'compile'}, path)
+
+    def test_help_and_reports_are_utf8_russian(self):
+        result = self.run_cli('--help')
+        self.assertEqual(result.returncode, 0)
+        self.assertIn('Автономный аудитор', result.stdout)
+        self.assertIn('Показать справку', result.stdout)
+        self.assertNotIn('show this help message', result.stdout)
+        output = json.loads(self.run_cli('audit', 'examples/safe.synthetic.json').stdout)
+        self.assertIn('Только автономный анализ', output['warning'])
+        self.assertTrue(all(any('А' <= c <= 'я' for c in r['title']) for r in output['results']))

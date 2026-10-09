@@ -20,7 +20,7 @@ def make_report(snapshot, raw):
         'synthetic': snapshot['synthetic'], 'scope': snapshot['scope'],
         'collected_at': snapshot['collected_at'], 'source': snapshot['source'],
         'provenance': 'synthetic-example' if snapshot['synthetic'] else 'operator-supplied-unverified',
-        'warning': 'Offline normalized evidence only. No live AD, AD CS or forest recovery validation performed.',
+        'warning': 'Только автономный анализ нормализованных свидетельств. Реальные AD, AD CS и восстановление леса не проверялись.',
         'summary': {status: counts[status] for status in STATUSES}, 'results': results,
         'evidence': sorted((e for e in snapshot['evidence'] if e['id'] in used), key=lambda e: e['id']),
     }
@@ -41,24 +41,24 @@ def escape_markdown(value):
 
 def markdown_report(report):
     esc = escape_markdown
-    lines = ['# AD OPSEC offline evidence report', '', report['warning'], '',
-             f"Scope: {esc(report['scope'])}", f"Provenance: {esc(report['provenance'])}",
-             f"Collected at: {esc(report['collected_at'])}",
-             f"Engine: {esc(report['engine_version'])}; rules: {esc(report['rules_version'])}",
-             f"Input SHA256: {report['input_sha256']}", '',
+    lines = ['# Отчёт автономного анализа свидетельств AD OPSEC', '', report['warning'], '',
+             f"Область: {esc(report['scope'])}", f"Происхождение: {esc(report['provenance'])}",
+             f"Время сбора: {esc(report['collected_at'])}",
+             f"Анализатор: {esc(report['engine_version'])}; правила: {esc(report['rules_version'])}",
+             f"SHA256 входных данных: {report['input_sha256']}", '',
              ' | '.join(f'{s}: {report["summary"][s]}' for s in STATUSES), '',
-             '| Check | Status | Severity | Confidence | Coverage |', '| --- | --- | --- | --- | --- |']
+             '| Проверка | Результат | Критичность | Уверенность | Покрытие |', '| --- | --- | --- | --- | --- |']
     for result in report['results']:
         lines.append('| ' + ' | '.join(esc(result[k]) for k in
                      ('check_id', 'status', 'severity', 'confidence', 'coverage')) + ' |')
     for result in report['results']:
         lines += ['', f"## {result['check_id']}: {esc(result['title'])}", '',
-                  f"Result: {esc(result['status'])}. {esc(result['reason'])}",
-                  'Evidence: ' + (', '.join(esc(e) for e in result['evidence_refs']) or 'none'),
-                  'Remediation: ' + esc(result['remediation']),
-                  'Limitations: ' + esc(result['limitations'])]
+                  f"Результат: {esc(result['status'])}. {esc(result['reason'])}",
+                  'Свидетельства: ' + (', '.join(esc(e) for e in result['evidence_refs']) or 'нет'),
+                  'Рекомендации: ' + esc(result['remediation']),
+                  'Ограничения: ' + esc(result['limitations'])]
         lines += ['- ' + esc(v) for v in result['violations']]
-    lines += ['', '## Referenced evidence', '']
+    lines += ['', '## Использованные свидетельства', '']
     for evidence in report['evidence']:
         lines.append(f"- {esc(evidence['id'])}: {esc(evidence['source'])}; {esc(evidence['collected_at'])}; {esc(evidence['description'])}")
     return '\n'.join(lines) + '\n'

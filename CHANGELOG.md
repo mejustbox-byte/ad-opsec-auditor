@@ -1,11 +1,17 @@
-# Changelog
+# История изменений
 
-## 0.1.0a1 — offline prerelease
+## 0.1.0a2 — предварительный выпуск на русском языке
 
-Первый offline read-only evidence auditor: CLI validate/audit/schema, strict JSON contract, nine baseline rules, evidence/severity/confidence/remediation, JSON/Markdown reports, synthetic examples, unit/integration tests, pinned builds и CI.
+Тег AD `v0.1.0a2`, версия пакета `0.1.0a2`. Документация, помощь CLI, описания схемы и правил, отчёты, рекомендации, шаблоны и инструкции среды переведены на русский. Чтение/запись текстов явно использует UTF-8, в том числе на Windows. Ключи JSON, команды, идентификаторы и результаты pass/fail/unknown/not_run сохранены; логика baseline-v1 и схема v1 совместимы.
 
-Read-only здесь означает чтение локального snapshot и запись выбранного отчёта; нет network collection, credential inputs, remediation execution или AD modifications. Нормализованные facts требуют доверенного источника и ручного review. Rule risk findings не доказывают успешную эксплуатацию.
+Добавлена безопасная публикация существующего draft через вручную запускаемый GitHub Actions: проверка тега/commit, сборка и проверка установки, контрольные суммы, загрузка только отсутствующих файлов, проверка скачанных данных до и после публикации. Право contents:write ограничено job публикации; новые credentials не нужны.
 
-**Not run:** live AD/AD CS/ACL/RSAT collection, effective GPO/signing/channel validation, least-privilege collector safety, реальный recovery drill, Windows Server 2019/2022/2025 compatibility. Collector не поставляется. Поэтому выпуск prerelease, а не stable production scanner. Hosted Windows CI проверяет только offline Python workflow.
+Артефакты: wheel, исходный архив, Python zipapp и SHA256SUMS. Python 3.12, без зависимостей во время работы. [Установка](docs/user-guide.md). Старый `v0.1.0a1` сохранён; новый выпуск не переносит его тег.
 
-Артефакты: wheel, sdist, Python zipapp, SHA256SUMS. Python 3.12; runtime dependencies отсутствуют. Установка/запуск: [user guide](docs/user-guide.md). Не публиковать secrets или реальные infrastructure exports. Remote PR/merge/CI/release state фиксируется только фактическими результатами GitHub; changelog сам по себе не доказывает публикацию.
+**Не запускались:** реальные проверки AD/AD CS/RSAT, вычисление полного эффективного графа ACL, применение GPO и политик протоколов, проверка минимальных прав будущего сборщика, совместимость Windows Server 2019/2022/2025, реальное восстановление леса. Сборщик не поставляется; обычный Windows CI проверяет только автономный Python. Поэтому выпуск предварительный.
+
+## 0.1.0a1 — первый автономный предварительный выпуск
+
+CLI validate/audit/schema, строгий контракт JSON, девять правил baseline-v1, свидетельства, критичность, уверенность и рекомендации, JSON/Markdown, синтетические примеры, модульные и интеграционные тесты, закреплённые зависимости сборки и CI. Работа только чтением локального снимка; возможна запись нового выбранного отчёта. Нет сбора по сети, чтения credentials, эксплуатации или изменений AD.
+
+Нормализованные факты требуют доверенного источника и ручного review. Вывод о риске не доказывает успешную эксплуатацию. Все реальные Windows AD и recovery сценарии были not_run. Публикация custom assets перенесена из ограниченного локального клиента в штатный Actions workflow.

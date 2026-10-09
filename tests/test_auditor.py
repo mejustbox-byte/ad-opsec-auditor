@@ -139,7 +139,7 @@ class RuleTests(unittest.TestCase):
         data['synthetic'] = False
         actual = report(data)
         self.assertEqual(actual['provenance'], 'operator-supplied-unverified')
-        self.assertIn('No live AD', actual['warning'])
+        self.assertIn('Реальные AD', actual['warning'])
 
 
 class ValidationTests(unittest.TestCase):
@@ -244,3 +244,14 @@ class ValidationTests(unittest.TestCase):
         data['scope'] = '[' * 200
         validate_snapshot(data)
         parse_snapshot(json.dumps(data).encode())
+
+
+class LibraryContractTests(unittest.TestCase):
+    def test_public_bytes_api_validates_and_binds_hash_to_data(self):
+        from ad_opsec_auditor import audit_bytes
+        raw = (ROOT / 'examples/safe.synthetic.json').read_bytes()
+        actual = audit_bytes(raw)
+        self.assertEqual(actual['summary']['pass'], 9)
+        self.assertEqual(actual['input_sha256'], hashlib.sha256(raw).hexdigest())
+        with self.assertRaises(InputError):
+            audit_bytes(b'{')

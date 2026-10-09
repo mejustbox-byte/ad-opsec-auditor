@@ -1,39 +1,31 @@
 # Архитектура
 
-Статус: offline MVP реализуется; Windows collector остаётся проектом. Основание: [требования](requirements.md) и [угрозы](threat-model.md).
-
-## Поток данных
+Реализован автономный MVP; сборщик Windows остаётся проектом. Основание: [требования](requirements.md) и [модель угроз](threat-model.md).
 
 ```mermaid
 flowchart LR
-  O[Оператор и утверждённый scope] --> W[Windows read-only collector]
-  AD[AD / CA / политика / журналы] --> W
-  W --> P[Частный evidence bundle]
-  P --> A[Offline analyzer в частной среде]
-  A --> R[Частный JSON / Markdown отчёт]
-  F[Синтетические fixtures] --> C[Linux разработка и public CI]
+ O[Оператор и утверждённая область] --> W[Будущий сборщик Windows только чтением]
+ AD[AD / CA / политики / журналы] --> W
+ W --> P[Частное хранилище свидетельств]
+ P --> A[Автономный анализатор в частной среде]
+ A --> R[Частный отчёт JSON / Markdown]
+ F[Синтетические примеры] --> C[Разработка Linux и публичный CI]
 ```
 
-Linux onboarding не подключён к AD. Реальный bundle анализируется только в согласованной частной среде, а не загружается в этот публичный проект. Обезличивание реальной выгрузки не делает её автоматически допустимым fixture.
+Реальные данные не загружаются в публичный проект или этот облачный workspace. Обезличивание реальной выгрузки не делает её автоматически допустимым примером.
 
-## Компоненты и обязанности
+## Реализованные компоненты
 
-Collector: explicit scope manifest, capability discovery, source-specific read adapters, pagination, budgets, provenance и coverage; никаких правил исправления. Normalizer: schema validation, SID/GUID resolution с unresolved markers, timestamp UTC, источник effective policy, без потери неизвестных прав. Rule engine: чистые функции над immutable model, версия набора правил, finding/check IDs, отдельные severity/confidence. Reporter: safe escaping, минимизация identifiers, JSON для машин и Markdown для человека. Storage: частная файловая система, ACL/шифрование на уровне ОС, срок хранения, отсутствие фоновой загрузки.
+`schema.py` — единый декларативный контракт; `validation.py` — ограниченный разбор и проверка типов/ссылок; `rules.py` — девять правил baseline-v1; `report.py` — детерминированные JSON и экранированный Markdown; `cli.py` — команды и создание только нового файла. [Контракт](input-contract.md) описывает точные поля, состояния и ограничения.
 
-## Будущий контракт bundle v1
+Ввод состоит из метаданных, логических свидетельств и нормализованных фактов. Положительный вывод возможен только при всех необходимых фактах, complete покрытии и непустых корректных ссылках. Истинность утверждений независимо не подтверждается. Ссылки не открываются как файлы/URL. Нет сетевых запросов или выполнения строк.
 
-Manifest: schema_version, collector_version, rules_version, collected_at UTC, synthetic boolean, scope, source OS/module versions, checks, coverage, file hashes. Каждый check: check_id, status, evidence_refs, reason. Raw evidence: минимальные атрибуты, source ID и timestamp; passwords/private keys/event secrets запрещены. Findings: rule_id, check_id, severity, confidence, evidence_refs, explanation, recommendation и limitations. Неизвестная schema version отвергается; миграции — явные. Хэши проверяют целостность, но не удостоверяют подлинность AD. Synthetic fixtures этого этапа проверяют только модель статусов, не являются полной схемой bundle.
+Отчёт содержит версии, SHA256 точных входных байтов, область/источник/UTC, происхождение, результаты, критичность/уверенность, нарушения, рекомендации и ограничения. Время запуска не используется; порядок результатов и ссылок стабилен. Тексты на русском и UTF-8, JSON корректно экранирует Unicode; ключи и enum сохранены.
 
-## Надёжность и безопасность
+## Будущий сбор и ограничения
 
-Недоступный источник получает unknown с причиной и областью; успешно прочитанные соседние источники не маскируют пробел. Детерминированная сортировка, bounded traversal membership с cycle detection, deadline и cancellation. Никакого dynamic execution из directory strings. ACL interpretation учитывает ACE order, inheritance, object types, deny, SID history и доверия; неполный context понижает confidence и запрещает категорический вывод об эффективном доступе.
+Планируемый сборщик: утверждённая область, обнаружение возможностей, разрешённые операции чтения, страницы, бюджет запросов, отмена, источник и полнота. Не поставляется. Не реализованы разбор исходных дескрипторов, обход графа SID/групп, полноценные эффективные ACL и доверия, собственный сбор AD CS/политик/журналов, криптографическая подпись происхождения.
 
-Configured policy, applied policy и observed behavior хранятся раздельно. Риск AD CS — комбинация template/CA/enrollment/ACL условий, а не ярлык по одному flag. Recovery readiness — evidence с датой последнего успешного drill, не обещание восстановить лес.
+Полное вычисление ACL должно учитывать порядок ACE, наследование, GUID, deny, SID history и границы доверия. Политика, её применение и наблюдаемое поведение разделены. Риск AD CS связан с сочетанием условий, но MVP не покрывает все ESC. Готовность восстановления определяется датированными независимыми свидетельствами учения, а не обещанием восстановить лес.
 
-## Расширения и поддержка
-
-Новый check требует ID в матрице, bounded read API, минимальных прав, threat review, positive/negative/missing fixtures и Windows evidence. Возможные будущие каталоги: collector/, analyzer/, schemas/, tests/; сейчас они не создаются как реализация. Совместимость Windows Server 2019/2022/2025 будет проверяться явно; поддержка не заявляется по наличию документа.
-
-## Реализованный offline MVP boundary
-
-`ad_opsec_auditor/schema.py` — declarative contract; `validation.py` — bounded parsing/validation; `rules.py` — девять deterministic baseline checks; `report.py` — JSON/escaped Markdown; `cli.py` — validate/audit/schema и exclusive output. Input v1 описан в [контракте](input-contract.md). Не является обещанным raw collector bundle: no raw SD parsing, SID graph traversal или подписанного provenance. Facts подготавливает доверенный оператор; analyzer не делает сетевых запросов. Частное использование synthetic=false отмечается unverified.
+Новая проверка требует ID в матрице, описания источника/прав/ограничений, положительных/отрицательных/неполных примеров и реального Windows-свидетельства для сбора. Совместимость Windows Server 2019/2022/2025 пока not_run. Публикация отдельно проверяет тег и скачанные артефакты; SHA256 не является подписью владельца.
