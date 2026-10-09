@@ -1,4 +1,8 @@
 """Conservative public-file guard; supplements, never replaces, manual review."""
+import sys
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, 'reconfigure'):
+        _stream.reconfigure(encoding='utf-8')
 import json
 from pathlib import Path
 import re
@@ -30,4 +34,4 @@ for encoded in sorted(set(paths)):
         data = json.loads(raw)
         if data.get('synthetic') is not True or data.get('scope') != 'lab.example.test':
             raise SystemExit(f'Public fixture must be explicitly synthetic: {path.relative_to(ROOT)}')
-print(f'Public-file guard passed for {count} files; manual provenance review still required')
+print(f'Проверка публичных файлов пройдена: {count} файлов; ручная проверка происхождения остаётся обязательной')

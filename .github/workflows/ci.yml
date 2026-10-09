@@ -1,4 +1,4 @@
-name: Offline auditor CI
+name: Проверки автономного аудитора
 on:
   push:
   pull_request:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   verify:
-    name: Offline checks (${{ matrix.os }})
+    name: Автономные проверки (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -21,18 +21,18 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
-      - name: Install hash-pinned build and reference-validation tools
+      - name: Установка инструментов с проверкой хешей
         run: >-
           python -m pip install --only-binary=:all: --require-hashes -r requirements-dev.lock
-      - name: Unit and CLI integration tests (synthetic data only)
+      - name: Модульные и CLI тесты на синтетических данных
         run: python -m unittest discover -s tests -v
-      - name: Reference schema agreement
+      - name: Сверка с эталонной схемой
         run: python tools/check_schema.py
-      - name: Public-file guard
+      - name: Проверка публичных файлов
         run: python tools/scan_public.py
-      - name: Build prerelease artifacts
+      - name: Сборка артефактов предварительного выпуска
         run: python tools/build_release.py
-      - name: Installed wheel, zipapp and sdist smoke tests
+      - name: Проверка установленных wheel, zipapp и исходного архива
         run: python tools/smoke_artifacts.py
-      - name: Repeated build comparison
+      - name: Сравнение повторных сборок
         run: python tools/check_reproducible.py

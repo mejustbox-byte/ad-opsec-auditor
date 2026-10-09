@@ -2,9 +2,12 @@
 from pathlib import Path
 import subprocess
 import sys
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, 'reconfigure'):
+        _stream.reconfigure(encoding='utf-8')
 ROOT = Path(__file__).resolve().parents[1]
 before = (ROOT / 'dist/SHA256SUMS').read_bytes()
 subprocess.run([sys.executable, str(ROOT / 'tools/build_release.py')], check=True, stdout=subprocess.DEVNULL)
 if (ROOT / 'dist/SHA256SUMS').read_bytes() != before:
     raise SystemExit('Repeated release build differs')
-print('Repeated wheel/sdist/zipapp SHA256 checksums match')
+print('SHA256 повторных сборок wheel/исходного архива/zipapp совпали')

@@ -2,6 +2,10 @@
 
 No release creation, tag mutation, credentials configuration or asset overwrite.
 """
+import sys
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, 'reconfigure'):
+        _stream.reconfigure(encoding='utf-8')
 import argparse
 import hashlib
 import json
@@ -19,16 +23,29 @@ NAMES = {'ad_opsec_auditor-0.1.0a1-py3-none-any.whl',
          'ad_opsec_auditor-0.1.0a1.tar.gz', 'ad-opsec-auditor-0.1.0a1.pyz'}
 
 
+VERSIONS = {'v0.1.0a1': '0.1.0a1', 'v0.1.0a2': '0.1.0a2'}
+
+
+def configure_target(tag, commit, release_id):
+    global TAG, COMMIT, RELEASE_ID, NAMES
+    if tag not in VERSIONS or re.fullmatch(r'[0-9a-f]{40}', commit) is None or type(release_id) is not int or release_id <= 0:
+        raise PublishError('Неверные параметры выбранного выпуска')
+    TAG, COMMIT, RELEASE_ID = tag, commit, release_id
+    version = VERSIONS[tag]
+    NAMES = {f'ad_opsec_auditor-{version}-py3-none-any.whl',
+             f'ad_opsec_auditor-{version}.tar.gz', f'ad-opsec-auditor-{version}.pyz'}
+
+
 class PublishError(ValueError):
     pass
 
 
 def gh(args, payload=None):
     result = subprocess.run(['gh', *args], input=json.dumps(payload) if payload is not None else None,
-                            capture_output=True, text=True, timeout=120)
+                            capture_output=True, text=True, encoding='utf-8', timeout=120)
     if result.returncode:
         # Do not echo transport errors: they can contain temporary signed URLs.
-        raise PublishError('GitHub operation failed; no credentials or signed URLs are printed')
+        raise PublishError('Операция GitHub не выполнена; credentials и подписанные URL не выводятся')
     return result.stdout
 
 
@@ -42,41 +59,41 @@ def api(endpoint, payload=None):
 def artifacts(directory):
     directory = Path(directory)
     if {p.name for p in directory.iterdir()} != NAMES | {'SHA256SUMS'}:
-        raise PublishError('Artifact set must be exactly the four approved files')
+        raise PublishError('Набор артефактов должен содержать ровно четыре утверждённых файла')
     for name in NAMES | {'SHA256SUMS'}:
         path = directory / name
         if path.is_symlink() or not path.is_file() or path.stat().st_size > 256 * 1024 * 1024:
-            raise PublishError('Unsafe or oversized artifact')
+            raise PublishError('Небезопасный или слишком большой артефакт')
     digests = {}
     for line in (directory / 'SHA256SUMS').read_text(encoding='utf-8').splitlines():
         match = re.fullmatch(r'([0-9a-f]{64})  ([A-Za-z0-9_.-]+)', line)
         if not match or match[2] not in NAMES or match[2] in digests:
-            raise PublishError('Invalid or duplicate checksum entry')
+            raise PublishError('Неверная или повторная запись контрольной суммы')
         digests[match[2]] = match[1]
     if set(digests) != NAMES:
-        raise PublishError('Incomplete checksum manifest')
+        raise PublishError('Неполный manifest контрольных сумм')
     for name, digest in digests.items():
         if hashlib.sha256((directory / name).read_bytes()).hexdigest() != digest:
-            raise PublishError('Local artifact checksum mismatch')
+            raise PublishError('Контрольная сумма локального артефакта не совпала')
     digests['SHA256SUMS'] = hashlib.sha256((directory / 'SHA256SUMS').read_bytes()).hexdigest()
     return digests
 
 
 def verify_release(release, digests, complete=False, published=False):
     if release.get('id') != RELEASE_ID or release.get('tag_name') != TAG or release.get('prerelease') is not True:
-        raise PublishError('Existing release identity or prerelease flag does not match')
+        raise PublishError('ID/тег существующего выпуска или флаг prerelease не совпал')
     if type(release.get('draft')) is not bool or (published and release['draft']):
-        raise PublishError('Release publication state does not match')
+        raise PublishError('Состояние публикации выпуска не совпало')
     seen = set()
     for asset in release.get('assets', []):
         name = asset.get('name')
         if name not in digests or name in seen or asset.get('state') != 'uploaded':
-            raise PublishError('Unexpected, duplicate or incomplete release asset')
+            raise PublishError('Неожиданный, повторный или незавершённый файл выпуска')
         seen.add(name)
         if asset.get('digest') is not None and asset['digest'] != 'sha256:' + digests[name]:
-            raise PublishError('Remote asset digest does not match verified build')
+            raise PublishError('Хеш файла GitHub не совпал с проверенной сборкой')
     if complete and seen != set(digests):
-        raise PublishError('Release assets are incomplete')
+        raise PublishError('Набор файлов выпуска неполон')
     return seen
 
 
@@ -85,7 +102,7 @@ def verify_tag():
     if reference['type'] == 'tag':
         reference = api(f'repos/{REPO}/git/tags/{reference["sha"]}')['object']
     if reference['type'] != 'commit' or reference['sha'] != COMMIT:
-        raise PublishError('Tag moved or does not identify the audited commit')
+        raise PublishError('Тег передвинут или не указывает на проверенный commit')
 
 
 def verify_downloads(digests):
@@ -94,7 +111,7 @@ def verify_downloads(digests):
             gh(['release', 'download', TAG, '--repo', REPO, '--pattern', name, '--dir', directory])
             downloaded = Path(directory) / name
             if not downloaded.is_file() or hashlib.sha256(downloaded.read_bytes()).hexdigest() != digests[name]:
-                raise PublishError('Downloaded asset checksum mismatch')
+                raise PublishError('Контрольная сумма скачанного файла не совпала')
 
 
 def publish(directory):
@@ -106,7 +123,7 @@ def publish(directory):
     if not release['draft']:
         verify_release(release, digests, complete=True, published=True)
         verify_downloads(digests)
-        print('Existing public prerelease and all four downloaded checksums verified')
+        print('Существующий публичный предварительный выпуск и четыре скачанные контрольные суммы проверены')
         return
     for name in sorted(set(digests) - present):
         gh(['release', 'upload', TAG, str(Path(directory) / name), '--repo', REPO])
@@ -118,22 +135,26 @@ def publish(directory):
     verify_release(published, digests, complete=True, published=True)
     verify_release(api(endpoint), digests, complete=True, published=True)
     verify_downloads(digests)
-    print(f'Published https://github.com/{REPO}/releases/tag/{TAG}; all four assets and downloads verified')
+    print(f'Опубликован https://github.com/{REPO}/releases/tag/{TAG}; четыре файла и скачанные данные проверены')
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dist', required=True)
+    parser.add_argument('--tag', default=TAG)
+    parser.add_argument('--expected-commit', default=COMMIT)
+    parser.add_argument('--release-id', type=int, default=RELEASE_ID)
     args = parser.parse_args()
     if (os.environ.get('GITHUB_ACTIONS') != 'true'
             or os.environ.get('GITHUB_REPOSITORY') != REPO
             or os.environ.get('GITHUB_EVENT_NAME') != 'workflow_dispatch'
             or os.environ.get('GITHUB_REF') != 'refs/heads/main'):
-        raise SystemExit('Publication must run in the authorized manually dispatched main Actions job')
+        raise SystemExit('Публикация разрешена только вручную запущенному job Actions на main')
     try:
+        configure_target(args.tag, args.expected_commit, args.release_id)
         publish(args.dist)
     except (PublishError, OSError, KeyError, json.JSONDecodeError, subprocess.TimeoutExpired) as exc:
-        raise SystemExit('Release verification/publication failed: ' + type(exc).__name__) from None
+        raise SystemExit('Проверка или публикация выпуска не выполнена: ' + type(exc).__name__) from None
 
 
 if __name__ == '__main__':

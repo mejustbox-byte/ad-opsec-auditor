@@ -1,6 +1,6 @@
-# Установка и запуск v0.1.0a1
+# Установка и использование 0.1.0a2
 
-Требуется Python 3.12. Инструмент не подключается к AD и не требует credential. Все bundled examples synthetic. Реальные snapshots хранить и анализировать только в частной среде; не загружать их в public GitHub или этот cloud workspace.
+Требуется Python 3.12. CLI не подключается к AD и не требует учётных данных. Примеры синтетические. Реальные снимки разрешены только в утверждённой частной среде, не в публичном GitHub или этом облачном workspace.
 
 ## Из исходников
 
@@ -11,28 +11,27 @@ python3 -m ad_opsec_auditor validate examples/safe.synthetic.json
 python3 -m ad_opsec_auditor audit examples/risky.synthetic.json --format markdown
 ```
 
-Risky example ожидаемо возвращает exit 1. Exit codes: 0 = validate success / audit all pass; 1 = audit has fail; 2 = invalid input/arguments/I/O; 3 = no fail, but unknown/not_run. Validate не оценивает безопасность и не обещает audit exit 0. Пустой/неполный snapshot валиден, но отсутствующие checks имеют not_run; missing facts/evidence и partial coverage дают unknown.
+Рискованный пример ожидаемо возвращает 1. Коды: 0 — успешная validate или все результаты audit равны pass; 1 — есть fail; 2 — неверный ввод/аргументы/ошибка файла; 3 — нет fail, но есть unknown/not_run. Validate подтверждает структуру, не безопасность. Отсутствующая проверка даёт not_run; неполное покрытие, отсутствующие факты или свидетельства дают unknown.
 
-## Из prerelease artifacts
+## Из артефактов предварительного выпуска
 
-Скачать wheel, zipapp и SHA256SUMS со страницы GitHub Release, проверить sha256 (Unix `sha256sum -c SHA256SUMS`, Windows `Get-FileHash -Algorithm SHA256`). Проверить, что выбран именно нужный version и commit; checksums не удостоверяют автора.
+Со страницы GitHub Release v0.1.0a2 скачать wheel, исходный архив, zipapp и SHA256SUMS в один каталог. Проверить `sha256sum -c SHA256SUMS`; на Windows сравнить `Get-FileHash -Algorithm SHA256` с manifest. Выбранный тег/commit проверять отдельно: хеши не удостоверяют автора.
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install --no-index --no-deps ad_opsec_auditor-0.1.0a1-py3-none-any.whl
+.venv/bin/python -m pip install --no-index --no-deps ad_opsec_auditor-0.1.0a2-py3-none-any.whl
+python3 -m tarfile -e ad_opsec_auditor-0.1.0a2.tar.gz .
 .venv/bin/ad-opsec-auditor --version
-.venv/bin/ad-opsec-auditor audit examples/safe.synthetic.json --format json --output report.json
-python3 ad-opsec-auditor-0.1.0a1.pyz audit examples/safe.synthetic.json --format markdown
+.venv/bin/ad-opsec-auditor audit ad_opsec_auditor-0.1.0a2/examples/safe.synthetic.json --format markdown
+python3 ad-opsec-auditor-0.1.0a2.pyz audit ad_opsec_auditor-0.1.0a2/examples/risky.synthetic.json --format json
 ```
 
-Windows: `py -3.12 -m venv .venv`, затем `.venv\Scripts\python.exe -m pip install --no-index --no-deps ...` и `.venv\Scripts\ad-opsec-auditor.exe ...`. Wheel/zipapp не включают examples; получить их из source archive или checkout release tag. Destination --output создаётся эксклюзивно; существующий файл, symlink и директория отвергаются. Parent должен существовать. При stdout данные идут только туда; диагностические сообщения без входных значений — в stderr.
+Windows: `py -3.12 -m venv .venv`, `.venv\Scripts\python.exe` и `.venv\Scripts\ad-opsec-auditor.exe`. Wheel и zipapp содержат код и схему; примеры находятся в исходном архиве. Тексты помощи/Markdown записываются в UTF-8, JSON сохраняет русские строки с корректным стандартным экранированием.
 
-## Вход и доверие
+`--output NEW_FILE` создаёт только новый файл. Существующие файлы, symlink и директории отвергаются; родительский каталог должен существовать. Вход не перезаписывается. Без --output отчёт идёт в stdout; безопасная диагностика — в stderr.
 
-См. [контракт](input-contract.md), опубликованную [JSON Schema](../schemas/snapshot-v1.schema.json) и примеры. Evidence — логические записи с ID, source, UTC timestamp и description. Их тексты не исполняются, paths/URL не открываются. Автор snapshot отвечает за истинность, достаточность и scope evidence. Анализатор обнаруживает structural errors и missing coverage, но не ложь в аттестации.
+## Контракт и ограничения
 
-Pass означает соответствие конкретному baseline по заявленным facts, не «лес безопасен». Fail содержит severity, confidence, failed predicates и remediation. Unknown означает недостаточность evidence, not_run — сбор не запускался. Report включает hash точных input bytes и версии engine/rules; он детерминирован и не использует текущее время.
+[Контракт](input-contract.md), [схема](../schemas/snapshot-v1.schema.json), [лаборатория](lab.md). Свидетельства — ID, источник, время UTC и краткое описание. Их текст не исполняется, пути/URL не открываются. Оператор отвечает за истинность, достаточность и область данных; анализатор проверяет структуру и полноту заявленных полей, а не истинность аттестации.
 
-## Лабораторная проверка
-
-Все реальные Windows AD проверки сейчас not_run. Следовать [lab runbook](lab.md) для isolated Windows testing. Native collector отсутствует; сначала lab owner вручную подтверждает facts и готовит private normalized snapshot. CLI результаты сверяются с независимыми наблюдениями. Synthetic/hosted Windows tests не считаются laboratory acceptance.
+Pass означает соответствие baseline-v1 по заявленным фактам. Fail содержит критичность, уверенность, нарушенные условия и рекомендации. Unknown означает нехватку данных; not_run — отсутствие запуска сбора. Отчёт включает SHA256 точных входных байтов и версии; результат детерминирован и не использует текущее время. Проверки реальной инфраструктуры пока not_run; сборщик не поставляется.

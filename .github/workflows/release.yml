@@ -1,14 +1,31 @@
-name: Publish existing AD prerelease
+name: Публикация существующего предварительного выпуска AD
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Неизменный тег AD
+        type: choice
+        options: [v0.1.0a1, v0.1.0a2]
+        default: v0.1.0a1
+        required: true
+      expected_commit:
+        description: Полный SHA проверенного исходного commit
+        default: '63579e76a7766c06dfc4626da683ad2db782d607'
+        required: true
+        type: string
+      release_id:
+        description: ID существующего draft этого выпуска
+        default: '407852541'
+        required: true
+        type: string
 permissions:
   contents: read
 concurrency:
-  group: publish-ad-v0.1.0a1
+  group: publish-ad-prerelease
   cancel-in-progress: false
 jobs:
   build:
-    name: Verify immutable tag and build artifacts
+    name: Проверка неизменного тега и сборка
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -17,27 +34,38 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          ref: v0.1.0a1
+          ref: ${{ inputs.tag }}
           fetch-depth: 0
           persist-credentials: false
-      - name: Verify exact source commit without modifying tag
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = '63579e76a7766c06dfc4626da683ad2db782d607'
-          test "$(git rev-parse 'v0.1.0a1^{commit}')" = '63579e76a7766c06dfc4626da683ad2db782d607'
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
-      - name: Install hash-pinned build and validation tools
+      - name: Проверить commit и версию выбранного тега
+        env:
+          SOURCE_TAG: ${{ inputs.tag }}
+          SOURCE_COMMIT: ${{ inputs.expected_commit }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PYTHON'
+          import os, re, subprocess
+          from ad_opsec_auditor import __version__
+          versions = {'v0.1.0a1': '0.1.0a1', 'v0.1.0a2': '0.1.0a2'}
+          tag, expected = os.environ['SOURCE_TAG'], os.environ['SOURCE_COMMIT']
+          assert tag in versions and re.fullmatch(r'[0-9a-f]{40}', expected)
+          assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == expected
+          assert subprocess.check_output(['git', 'rev-parse', tag + '^{commit}'], text=True).strip() == expected
+          assert __version__ == versions[tag]
+          PYTHON
+      - name: Установка инструментов с проверкой хешей
         run: >-
           python -m pip install --only-binary=:all: --require-hashes -r requirements-dev.lock
-      - name: Validate actual tagged code and synthetic fixtures
+      - name: Проверка кода тега и синтетических примеров
         run: |
           python -m unittest discover -s tests -v
           python tools/check_schema.py
           python tools/scan_public.py
-      - name: Build, installation smoke, repeatability and checksums
+      - name: Сборка, проверка установки, повторяемости и контрольных сумм
         shell: bash
         run: |
           set -euo pipefail
@@ -48,16 +76,12 @@ jobs:
           sha256sum -c SHA256SUMS
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: verified-ad-v0.1.0a1
-          path: |
-            dist/ad_opsec_auditor-0.1.0a1-py3-none-any.whl
-            dist/ad_opsec_auditor-0.1.0a1.tar.gz
-            dist/ad-opsec-auditor-0.1.0a1.pyz
-            dist/SHA256SUMS
+          name: verified-ad-release
+          path: dist/*
           if-no-files-found: error
           retention-days: 7
   publish:
-    name: Attach verified assets and publish existing draft
+    name: Загрузка проверенных файлов и публикация существующего draft
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
@@ -74,9 +98,13 @@ jobs:
           python-version: '3.12'
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
-          name: verified-ad-v0.1.0a1
+          name: verified-ad-release
           path: release-dist
-      - name: Verify existing release, upload, verify downloads, publish, verify again
+      - name: Проверка существующего выпуска, загрузка, публикация и повторная сверка
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python tools/publish_release.py --dist release-dist
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_COMMIT: ${{ inputs.expected_commit }}
+          RELEASE_ID: ${{ inputs.release_id }}
+        run: |
+          python tools/publish_release.py --dist release-dist --tag "$RELEASE_TAG" --expected-commit "$RELEASE_COMMIT" --release-id "$RELEASE_ID"

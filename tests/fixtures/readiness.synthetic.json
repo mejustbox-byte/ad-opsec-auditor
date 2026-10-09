@@ -7,55 +7,55 @@
       "check_id": "T0-01",
       "status": "not_run",
       "evidence_refs": [],
-      "reason": "Windows laboratory and product collector are not available in this documentation stage."
+      "reason": "Windows-стенд и сборщик недоступны; реальные проверки не запускались."
     },
     {
       "check_id": "CS-01",
       "status": "not_run",
       "evidence_refs": [],
-      "reason": "Windows laboratory and product collector are not available in this documentation stage."
+      "reason": "Windows-стенд и сборщик недоступны; реальные проверки не запускались."
     },
     {
       "check_id": "ACL-01",
       "status": "not_run",
       "evidence_refs": [],
-      "reason": "Windows laboratory and product collector are not available in this documentation stage."
+      "reason": "Windows-стенд и сборщик недоступны; реальные проверки не запускались."
     },
     {
       "check_id": "SVC-01",
       "status": "not_run",
       "evidence_refs": [],
-      "reason": "Windows laboratory and product collector are not available in this documentation stage."
+      "reason": "Windows-стенд и сборщик недоступны; реальные проверки не запускались."
     },
     {
       "check_id": "NTLM-01",
       "status": "not_run",
       "evidence_refs": [],
-      "reason": "Windows laboratory and product collector are not available in this documentation stage."
+      "reason": "Windows-стенд и сборщик недоступны; реальные проверки не запускались."
     },
     {
       "check_id": "LDAP-01",
       "status": "not_run",
       "evidence_refs": [],
-      "reason": "Windows laboratory and product collector are not available in this documentation stage."
+      "reason": "Windows-стенд и сборщик недоступны; реальные проверки не запускались."
     },
     {
       "check_id": "SMB-01",
       "status": "not_run",
       "evidence_refs": [],
-      "reason": "Windows laboratory and product collector are not available in this documentation stage."
+      "reason": "Windows-стенд и сборщик недоступны; реальные проверки не запускались."
     },
     {
       "check_id": "LOG-01",
       "status": "not_run",
       "evidence_refs": [],
-      "reason": "Windows laboratory and product collector are not available in this documentation stage."
+      "reason": "Windows-стенд и сборщик недоступны; реальные проверки не запускались."
     },
     {
       "check_id": "REC-01",
       "status": "not_run",
       "evidence_refs": [],
-      "reason": "Windows laboratory and product collector are not available in this documentation stage."
+      "reason": "Windows-стенд и сборщик недоступны; реальные проверки не запускались."
     }
   ]
 }

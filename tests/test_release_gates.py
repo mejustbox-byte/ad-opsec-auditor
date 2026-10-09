@@ -81,3 +81,13 @@ class ReleaseGateTests(unittest.TestCase):
         download.assert_called_once()
         self.assertEqual(api.call_count, 1)
         self.assertFalse(gh.called)
+
+    def test_release_target_versions_and_immutable_commit_validation(self):
+        with patch.object(release, 'TAG', release.TAG), patch.object(release, 'COMMIT', release.COMMIT):
+            with patch.object(release, 'RELEASE_ID', release.RELEASE_ID), patch.object(release, 'NAMES', release.NAMES):
+                release.configure_target('v0.1.0a2', 'a' * 40, 123)
+                self.assertEqual(release.TAG, 'v0.1.0a2')
+                self.assertIn('ad_opsec_auditor-0.1.0a2-py3-none-any.whl', release.NAMES)
+                for tag, commit, identifier in [('other', 'a' * 40, 123), ('v0.1.0a2', 'short', 123), ('v0.1.0a2', 'a' * 40, 0)]:
+                    with self.assertRaises(release.PublishError):
+                        release.configure_target(tag, commit, identifier)

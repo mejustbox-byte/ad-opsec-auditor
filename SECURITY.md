@@ -1,7 +1,27 @@
-# Security and data handling
+# Безопасность и сообщение об уязвимости
 
-This prerelease analyzes local operator-normalized snapshots only. It does not collect from AD, read credentials, exploit services, execute remediation or contact remote endpoints. Real Windows AD and recovery acceptance tests remain not_run.
+## Поддерживаемые предварительные версии
 
-Do not attach actual infrastructure exports, credentials, keys, event payloads or private reports to public issues, pull requests or CI. Use minimal hand-authored synthetic examples to reproduce errors. A report pass is limited to the declared facts and scope, not a guarantee of forest security.
+Текущая разработка ведётся в main для 0.1.0a2. Это предварительный автономный анализатор, без гарантии промышленной пригодности и без проверенного Windows-сборщика. v0.1.0a1 — исторический выпуск; исправления выходят новым тегом, его assets не перепаковываются. Поддержка означает рассмотрение отчётов и исправления в следующих выпусках, без обещанного срока реакции или production SLA.
 
-For a suspected vulnerability, use the repository's private reporting feature if enabled; otherwise report a minimal non-sensitive description and request a private channel. Never publish a live secret as evidence. Pattern scanning is supplementary and does not prove absence of all sensitive data.
+## Сообщение об уязвимости
+
+Наличие закрытого канала GitHub Private Vulnerability Reporting не подтверждено. Не отправляйте реальные secrets, infrastructure exports, ключи, полный exploit или частные отчёты в публичное обращение. В [Issues](https://github.com/mejustbox-byte/ad-opsec-auditor/issues) можно оставить краткое безопасное описание и попросить владельца указать доверенный частный канал. Подробности передавать только после согласования такого канала, а не по вымышленному адресу. Для обычной ошибки приложить минимальный вручную созданный синтетический пример, версию, команду и ожидаемый/фактический результат.
+
+Не обещаем несуществующую программу bug bounty, шифрованную почту, сроки исправления или независимый аудит. При утечке немедленно прекратить дальнейшую публикацию, ограничить доступ и отозвать credential через владельца; очистка Git-истории отдельным согласованным действием.
+
+## Границы доверия и данные
+
+Недоверенный JSON пересекает строгий валидатор до правил и отчёта. Оператор подтверждает факты; analyzer не подтверждает их правдивость. Ссылки на evidence — ID, не пути/URL для исполнения. Нет сети, чтения credentials, эксплуатации, записи AD или автоматической remediation. [Матрица угроз/контроли](THREAT-MODEL.md), [подробные ID](docs/threat-model.md).
+
+Реальные snapshots/reports — только частная среда вне Git/CI/этого cloud workspace, доверенный владелец, owner-only ACL, шифрование диска, согласованный срок хранения (лабораторный исходный ориентир 7 дней). Не сохранять passwords/private keys/tickets/event payloads. CLI ограничивает ввод и создаёт новый output (POSIX 0600), но не шифрует, не настраивает parent ACL, не удаляет данные по таймеру и не защищает пользовательское перенаправление stdout. Windows ACL проверяется оператором. Удаление пакета не удаляет данные.
+
+## Зависимости, лицензии и выпуск
+
+Runtime только стандартная библиотека Python; инструменты сборки/проверки закреплены по версии/хешам. [Реестр лицензий и цепочка поставок](SUPPLY-CHAIN.md), [MIT](LICENSE), [русское пояснение](LICENSE.ru.md). SHA Actions, read-only CI и manual main publisher contents:write; токен штатный, временный и не записывается в файлы. Тег неизменен, assets проверяются до/после публикации по API и скачанным SHA256. Хеш не равен подписи автора; чужой workflow commit и package источник проверяются отдельно.
+
+## Проверки безопасности и непроверенные условия
+
+Suite покрывает invalid JSON, типы/дубли/ограничения/ссылки, false pass, partial/missing, escaping, отсутствие сетевых/исполняющих primitives, запрет перезаписи, POSIX symlink/FIFO и release gates. Public-file pattern scan дополняет ручную проверку, не доказывает отсутствие всех секретов. [Фактические результаты](VERIFICATION.md).
+
+**НЕ ВЫПОЛНЕНО:** live AD/AD CS/ACL/RSAT, реальные effective protocol/GPO tests, минимальные права будущего сборщика, безопасность его запросов, матрица Windows Server, forest restore drill, независимый security audit и независимое восстановление cloud snapshot. Синтетические данные и обычный Windows CI не закрывают эти условия. [Отдельная лаборатория](LOCAL-PC.md).
