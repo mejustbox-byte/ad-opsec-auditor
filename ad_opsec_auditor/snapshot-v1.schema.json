@@ -1,0 +1,686 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "collected_at": {
+      "format": "date-time",
+      "maxLength": 20,
+      "minLength": 1,
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "collected_at": {
+            "format": "date-time",
+            "maxLength": 20,
+            "minLength": 1,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 512,
+            "minLength": 1,
+            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+            "type": "string"
+          },
+          "id": {
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+            "type": "string"
+          },
+          "source": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "collected_at",
+          "description"
+        ],
+        "type": "object"
+      },
+      "maxItems": 500,
+      "type": "array"
+    },
+    "observations": {
+      "additionalProperties": false,
+      "properties": {
+        "ACL-01": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "enum": [
+                "complete",
+                "partial",
+                "none"
+              ],
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "facts": {
+              "additionalProperties": false,
+              "properties": {
+                "unauthorized_control_edges": {
+                  "maximum": 1000000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "unresolved_aces": {
+                  "maximum": 1000000,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 512,
+              "minLength": 0,
+              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "collected",
+                "unknown",
+                "not_run"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "coverage",
+            "reason",
+            "evidence_refs",
+            "facts"
+          ],
+          "type": "object"
+        },
+        "CS-01": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "enum": [
+                "complete",
+                "partial",
+                "none"
+              ],
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "facts": {
+              "additionalProperties": false,
+              "properties": {
+                "templates": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "approval_required": {
+                        "type": "boolean"
+                      },
+                      "authentication": {
+                        "type": "boolean"
+                      },
+                      "authorized_signatures": {
+                        "maximum": 1000000,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "enrollee_supplies_subject": {
+                        "type": "boolean"
+                      },
+                      "name": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+                        "type": "string"
+                      },
+                      "published": {
+                        "type": "boolean"
+                      },
+                      "unprivileged_enrollment": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "published",
+                      "authentication",
+                      "enrollee_supplies_subject",
+                      "unprivileged_enrollment",
+                      "approval_required",
+                      "authorized_signatures"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 1000,
+                  "type": "array"
+                },
+                "unprivileged_ca_control": {
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 512,
+              "minLength": 0,
+              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "collected",
+                "unknown",
+                "not_run"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "coverage",
+            "reason",
+            "evidence_refs",
+            "facts"
+          ],
+          "type": "object"
+        },
+        "LDAP-01": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "enum": [
+                "complete",
+                "partial",
+                "none"
+              ],
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "facts": {
+              "additionalProperties": false,
+              "properties": {
+                "effective_channel_binding_required": {
+                  "type": "boolean"
+                },
+                "effective_signing_required": {
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 512,
+              "minLength": 0,
+              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "collected",
+                "unknown",
+                "not_run"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "coverage",
+            "reason",
+            "evidence_refs",
+            "facts"
+          ],
+          "type": "object"
+        },
+        "LOG-01": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "enum": [
+                "complete",
+                "partial",
+                "none"
+              ],
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "facts": {
+              "additionalProperties": false,
+              "properties": {
+                "effective_advanced_audit": {
+                  "type": "boolean"
+                },
+                "forwarding_healthy": {
+                  "type": "boolean"
+                },
+                "retention_days": {
+                  "maximum": 1000000,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 512,
+              "minLength": 0,
+              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "collected",
+                "unknown",
+                "not_run"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "coverage",
+            "reason",
+            "evidence_refs",
+            "facts"
+          ],
+          "type": "object"
+        },
+        "NTLM-01": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "enum": [
+                "complete",
+                "partial",
+                "none"
+              ],
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "facts": {
+              "additionalProperties": false,
+              "properties": {
+                "effective_restriction": {
+                  "type": "boolean"
+                },
+                "observed_ntlm": {
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 512,
+              "minLength": 0,
+              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "collected",
+                "unknown",
+                "not_run"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "coverage",
+            "reason",
+            "evidence_refs",
+            "facts"
+          ],
+          "type": "object"
+        },
+        "REC-01": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "enum": [
+                "complete",
+                "partial",
+                "none"
+              ],
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "facts": {
+              "additionalProperties": false,
+              "properties": {
+                "backup_verified": {
+                  "type": "boolean"
+                },
+                "drill_age_days": {
+                  "maximum": 1000000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "isolated_drill_succeeded": {
+                  "type": "boolean"
+                },
+                "runbook_reviewed": {
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 512,
+              "minLength": 0,
+              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "collected",
+                "unknown",
+                "not_run"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "coverage",
+            "reason",
+            "evidence_refs",
+            "facts"
+          ],
+          "type": "object"
+        },
+        "SMB-01": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "enum": [
+                "complete",
+                "partial",
+                "none"
+              ],
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "facts": {
+              "additionalProperties": false,
+              "properties": {
+                "effective_signing_required": {
+                  "type": "boolean"
+                },
+                "smb1_enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 512,
+              "minLength": 0,
+              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "collected",
+                "unknown",
+                "not_run"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "coverage",
+            "reason",
+            "evidence_refs",
+            "facts"
+          ],
+          "type": "object"
+        },
+        "SVC-01": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "enum": [
+                "complete",
+                "partial",
+                "none"
+              ],
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "facts": {
+              "additionalProperties": false,
+              "properties": {
+                "stale_accounts": {
+                  "maximum": 1000000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "unmanaged_privileged_accounts": {
+                  "maximum": 1000000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "unrestricted_gmsa_readers": {
+                  "maximum": 1000000,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 512,
+              "minLength": 0,
+              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "collected",
+                "unknown",
+                "not_run"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "coverage",
+            "reason",
+            "evidence_refs",
+            "facts"
+          ],
+          "type": "object"
+        },
+        "T0-01": {
+          "additionalProperties": false,
+          "properties": {
+            "coverage": {
+              "enum": [
+                "complete",
+                "partial",
+                "none"
+              ],
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$",
+                "type": "string"
+              },
+              "maxItems": 500,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "facts": {
+              "additionalProperties": false,
+              "properties": {
+                "unapproved_privileged_members": {
+                  "maximum": 1000000,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "unexpected_admin_paths": {
+                  "maximum": 1000000,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 512,
+              "minLength": 0,
+              "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "collected",
+                "unknown",
+                "not_run"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "coverage",
+            "reason",
+            "evidence_refs",
+            "facts"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "schema_version": {
+      "enum": [
+        1
+      ],
+      "type": "integer"
+    },
+    "scope": {
+      "maxLength": 256,
+      "minLength": 1,
+      "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+      "type": "string"
+    },
+    "source": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[^\\x00-\\x1f\\x7f]*$",
+      "type": "string"
+    },
+    "synthetic": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "scope",
+    "collected_at",
+    "source",
+    "evidence",
+    "observations"
+  ],
+  "title": "AD OPSEC normalized snapshot v1",
+  "type": "object"
+}
